@@ -14,7 +14,7 @@ def app():
         base_model = VGG16(weights=weights_path, include_top=False)
         model = Model(inputs=base_model.input, outputs=base_model.output)
     except Exception as e:
-        print(f"Error loading VGG16 model: {e}")
+        print(f"fail loading model: {e}")
         raise
 
     def extract_features(img_path):
@@ -26,7 +26,7 @@ def app():
             features = model.predict(x)
             return features.flatten()
         except Exception as e:
-            print(f"Error extracting features from {img_path}: {e}")
+            print(f"fail extracting features from {img_path}: {e}")
             return None
 
     def cache_reference_features(directory_path, cache_file="reference_features.pkl"):
@@ -43,7 +43,7 @@ def app():
             with open(cache_file, "wb") as f:
                 pickle.dump((features_list, file_names), f)
         except Exception as e:
-            print(f"Error accessing directory {directory_path}: {e}")
+            print(f"fail accessing directory {directory_path}: {e}")
         return features_list, file_names
 
     def load_cached_features(cache_file="reference_features.pkl"):
@@ -51,7 +51,7 @@ def app():
             with open(cache_file, "rb") as f:
                 return pickle.load(f)
         else:
-            print(f"Cache file {cache_file} not found.")
+            print(f"file {cache_file} not found.")
             return None, None
 
     def find_most_similar_image(query_features, reference_features):
@@ -59,7 +59,7 @@ def app():
             similarities = cosine_similarity([query_features], reference_features)
             return similarities[0]
         except Exception as e:
-            print(f"Error calculating similarity: {e}")
+            print(f"Error calculate similarity {e}")
             return None
 
     reference_images_directory = "./images"
@@ -71,7 +71,7 @@ def app():
             reference_images_directory, cache_file
         )
 
-    query_image_path = sys.argv[1]
+    query_image_path = './pencil.jpg'
     query_features = extract_features(query_image_path)
 
     if query_features is not None and len(reference_features) > 0:
@@ -82,14 +82,14 @@ def app():
             most_similar_score = similarity_scores[most_similar_index]
 
             if most_similar_score > 0.15:
-                print(f"The most similar image is: {most_similar_image_name}")
-                print(f"Similarity score: {most_similar_score}")
+                print(f"The most similar {most_similar_image_name}")
+                print(f"similarity score {most_similar_score}")
             else:
                 print(
-                    f"No image meets the similarity threshold of 15%. {most_similar_score}"
+                    f"no image similar. {most_similar_score}"
                 )
         else:
-            print("Error: Unable to determine the similarity scores.")
+            print("fail to determine.")
     else:
-        print("Error: Unable to extract features from query image or reference images.")
+        print("extract error")
 app()
